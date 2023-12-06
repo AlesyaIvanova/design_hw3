@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+    postgres:
+        image: postgres:14-alpine
+        environment:
+          - POSTGRES_USER=postgres
+          - POSTGRES_PASSWORD=postgres
+          - POSTGRES_DB=hw2
+        ports:
+          - "5432:5432"
+        volumes:
+          - ./postgres-data:/var/lib/postgresql/data
+    authorization:
+        build: ./authorization
+        ports:
+            - "8008:8000"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        depends_on:
+            - postgres
