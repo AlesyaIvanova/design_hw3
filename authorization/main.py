@@ -6,6 +6,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 import crud, model, schema
+from schema import *
+from crud import *
 from database import SessionLocal, engine
 import uvicorn
 import time
@@ -32,34 +34,38 @@ def get_db():
 async def root():
     return {"status": "ok"}
 
-# @app.post("/user")
-# def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
-#     db_user = crud.get_user_by_username(db, username=user.username)
-#     if db_user:
-#         raise HTTPException(status_code=400, detail="Username already registered")
-#     crud.create_user(db=db, user=user)
-#     return {"status" : "ok"} 
 
-# @app.get("/user/{username}", response_model=schema.User)
-# def read_user(username: str, db: Session = Depends(get_db)):
-#     db_user = crud.get_user_by_username(db, username=username)
-#     if db_user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return db_user
+@app.post("/user")
+def create_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    crud.create_user(db=db, user=user)
+    return {"status" : "ok"} 
 
-# @app.put("/user")
-# def update_user(user: schema.UserCreate, db: Session = Depends(get_db)):
-#     db_user = crud.get_user_by_username(db, username=user.username)
-#     if db_user is None:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     db_user = crud.update_user(db, user, db_user)
-#     return {"status" : "ok"}
 
-# @app.delete("/user/{username}")
-# def delete_user(username: str, db: Session = Depends(get_db)): 
-#     if crud.delete_user(db=db, username=username):
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return {"status" : "ok"}
+@app.get("/user/{username}", response_model=schema.User)
+def read_user(username: str, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, username=username)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+
+@app.put("/user")
+def update_user(user: schema.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, username=user.username)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_user = crud.update_user(db, user, db_user)
+    return {"status" : "ok"}
+
+
+@app.delete("/user/{username}")
+def delete_user(username: str, db: Session = Depends(get_db)): 
+    if crud.delete_user(db=db, username=username):
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"status" : "ok"}
 
 
 @app.post("/token", response_model=Token)

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 import model, schema
+from schema import *
 from datetime import datetime, timedelta
 from typing import Annotated
 
