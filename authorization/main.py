@@ -64,11 +64,19 @@ async def sign_up_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/users/me/", response_model=User)
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_user)]
+@app.get("/verify")
+async def verify_access_token(
+    token: str, db: Session = Depends(get_db)
 ):
-    return current_user
+    db_user = await crud.get_current_user(db, token)
+    return db_user.username
+
+
+# @app.get("/users/me/", response_model=User)
+# async def read_users_me(
+#     current_user: Annotated[User, Depends(get_current_user)]
+# ):
+#     return current_user
 
 
 # @app.put("/user")
