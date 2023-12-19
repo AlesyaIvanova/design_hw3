@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 import crud, models, schema
@@ -33,7 +33,7 @@ async def root():
 
 @app.post("/sign_in", response_model=Token)
 async def sing_in_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
 ):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -51,7 +51,7 @@ async def sing_in_for_access_token(
 
 @app.post("/sign_up", response_model=Token)
 async def sign_up_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
 ):
     db_user = crud.get_user_by_username(db, username=form_data.username)
     if db_user:
