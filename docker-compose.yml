@@ -14,8 +14,8 @@ services:
     authorization:
         build: ./authorization
         ports:
-            - "8008:8000"
-        stdin_open: true # docker run -i
-        tty: true        # docker run -t
+            - "8008:8008"
+        stdin_open: true
+        tty: true 
         depends_on:
             - postgres

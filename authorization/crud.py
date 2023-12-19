@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-import model, schema
+import models, schema
 from schema import *
 from datetime import datetime, timedelta
 from typing import Annotated
@@ -10,9 +10,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-# to get a string like this run:
-# openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = "c34028335ab8a9b4f9c813bd7f96958d98ed3a077a0b093891ffca3583a3cbef"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -30,45 +28,11 @@ def get_password_hash(password):
 
 
 def get_user(db: Session, user_id: int):
-    return db.query(model.User).filter(model.User.id == user_id).first()
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(model.User).filter(model.User.username == username).first()
-
-
-def create_user(db: Session, user: schema.UserCreate):
-    fake_hashed_password = user.password + "notreallyhashed"
-    db_user = model.User(
-        username=user.username,
-        hashed_password=get_password_hash(user.password), 
-        first_name=user.first_name,
-        last_name=user.last_name,
-        email=user.email,
-        phone=user.phone)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-def update_user(db: Session, user: schema.UserCreate, db_user):
-    user_data = user.dict(exclude_unset=True)
-    for key, value in user_data.items():
-        setattr(db_user, key, value)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-def delete_user(db: Session, username: str):
-    db_user = get_user_by_username(db, username)
-    if (db_user is None):
-        return -1
-    db.delete(db_user)
-    db.commit()
-    return 0
+    return db.query(models.User).filter(models.User.username == username).first()
 
 
 def authenticate_user(db: Session, username: str, password: str):
@@ -105,14 +69,41 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(db, username=token_data.username)
+    user = get_user_by_username(db, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+
+def create_user(db: Session, user: schema.UserCreate):
+    hashed_password = get_password_hash(user.password)
+    db_user = models.User(
+        username=user.username,
+        hashed_password=hashed_password) 
+        # first_name=user.first_name,
+        # last_name=user.last_name,
+        # email=user.email,
+        # phone=user.phone)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+# def update_user(db: Session, user: schema.UserCreate, db_user):
+#     user_data = user.dict(exclude_unset=True)
+#     for key, value in user_data.items():
+#         setattr(db_user, key, value)
+#     db.add(db_user)
+#     db.commit()
+#     db.refresh(db_user)
+#     return db_user
+
+
+# def delete_user(db: Session, username: str):
+#     db_user = get_user_by_username(db, username)
+#     if (db_user is None):
+#         return -1
+#     db.delete(db_user)
+#     db.commit()
+#     return 0

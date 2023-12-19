@@ -1,25 +1,30 @@
 from pydantic import BaseModel
 
-# class UserBase(BaseModel):
-#     username: str
-
-
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str
+
+
+class UserCreate(UserBase):
     password: str
-    first_name: str
-    last_name: str
-    email: str
-    phone: str
+    # first_name: str
+    # last_name: str
+    # email: str
+    # phone: str
 
-# class User(UserBase):
-#     first_name: str
-#     last_name: str
-#     email: str
-#     phone: str
 
-#     class Config:
-#         orm_mode = True
+class User(UserBase):
+    # first_name: str
+    # last_name: str
+    # email: str
+    # phone: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserInDB(User):
+    hashed_password: str
+
 
 class Token(BaseModel):
     access_token: str
@@ -28,15 +33,3 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
-
-
-class User(BaseModel):
-    username: str
-    first_name: str
-    last_name: str
-    email: str
-    phone: str
-
-
-class UserInDB(User):
-    hashed_password: str

@@ -7,6 +7,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8008
 
 ENTRYPOINT ["python3", "main.py"]
