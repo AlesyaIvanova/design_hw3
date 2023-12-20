@@ -69,7 +69,7 @@ async def verify_access_token(
     token: str, db: Session = Depends(get_db)
 ):
     db_user = await crud.get_current_user(db, token)
-    return db_user.username
+    return {"status": "ok", "username": db_user.username}
 
 
 # @app.get("/users/me/", response_model=User)
