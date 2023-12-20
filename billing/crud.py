@@ -16,6 +16,19 @@ def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
 
 
+def verify_user(token: str):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    response = requests.get('http://authorization:8008/verify?token=' + token)
+    if response.status_code != 200:
+        raise credentials_exception
+    username = response.json()["username"]
+    return username
+
+
 def create_user(db: Session, username: str):
     db_user = models.User(
         username=username,
@@ -28,7 +41,7 @@ def create_user(db: Session, username: str):
 
 
 def put_money(db: Session, username: str, money: int):
-    db_user = get_user_by_username(username)
+    db_user = get_user_by_username(db, username)
     db_user.balance += money
     db.add(db_user)
     db.commit()
@@ -37,7 +50,7 @@ def put_money(db: Session, username: str, money: int):
 
 
 def withdraw_money(db: Session, username: str, money: int):
-    db_user = get_user_by_username(username)
+    db_user = get_user_by_username(db, username)
     if db_user.balance < money:
         raise HTTPException(status_code=402, detail="Not enough money")
     db_user.balance -= money
@@ -48,5 +61,5 @@ def withdraw_money(db: Session, username: str, money: int):
 
 
 def check_balance(db: Session, username: str):
-    db_user = get_user_by_username(username)
+    db_user = get_user_by_username(db, username)
     return db_user.balance

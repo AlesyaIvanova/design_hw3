@@ -26,9 +26,7 @@ async def root():
 
 @app.post("/user")
 async def create_user(token: str, db: Session = Depends(get_db)):
-    response = requests.get('http://authorization:8008/verify?token=' + token)
-    response.raise_for_status()
-    username = response.content
+    username = verify_user(token)
     db_user = crud.get_user_by_username(db, username=username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -38,9 +36,7 @@ async def create_user(token: str, db: Session = Depends(get_db)):
 
 @app.put("/put_money")
 def put_money(token: str, money: int, db: Session = Depends(get_db)):
-    response = requests.get('http://authorization:8008/verify?token=' + token)
-    response.raise_for_status()
-    username = response.content
+    username = verify_user(token)
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -50,9 +46,7 @@ def put_money(token: str, money: int, db: Session = Depends(get_db)):
 
 @app.put("/withdraw_money")
 def put_money(token: str, money: int, db: Session = Depends(get_db)):
-    response = requests.get('http://authorization:8008/verify?token=' + token)
-    response.raise_for_status()
-    username = response.content
+    username = verify_user(token)
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -62,13 +56,11 @@ def put_money(token: str, money: int, db: Session = Depends(get_db)):
 
 @app.get("/check_balance")
 def check_balance(token: str, db: Session = Depends(get_db)):
-    response = requests.get('http://authorization:8008/verify?token=' + token)
-    response.raise_for_status()
-    username = response.content
+    username = verify_user(token)
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return crud.check_balance(db, username)
+    return {"status": "ok", "balance": crud.check_balance(db, username)}
 
 
 if __name__ == "__main__":
