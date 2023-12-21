@@ -40,6 +40,8 @@ def put_money(token: str, money: int, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if money <= 0:
+        raise HTTPException(status_code=402, detail="The amount of money should be a positive number")
     crud.put_money(db, username, money)
     return {"status" : "ok"} 
 
@@ -50,6 +52,8 @@ def withdraw_money(token: str, money: int, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if money <= 0:
+        raise HTTPException(status_code=402, detail="The amount of money should be a positive number")
     crud.withdraw_money(db, username, money)
     return {"status" : "ok"}
 
