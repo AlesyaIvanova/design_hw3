@@ -45,7 +45,7 @@ def create_order_for_user(token: str, order: OrderCreate, db: Session = Depends(
 
 
 @app.get("/orders/{token}", response_model=list[schema.Order])
-def read_items(token: str, db: Session = Depends(get_db)):
+def read_orders(token: str, db: Session = Depends(get_db)):
     username = verify_user(token)
     db_user = crud.get_user_by_username(db, username=username)
     if db_user is None:
